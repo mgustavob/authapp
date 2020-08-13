@@ -1,7 +1,7 @@
 const localStrategy = require('passport-local').Strategy;
 const db = require('../models');
 const passport = require('passport');
-const { deserializeUser } = require('passport');
+
 
 // passport serialize your info make it easier to login - convert the user basedon the id
 
@@ -12,8 +12,13 @@ passport.serializeUser((user, cb) =>{
 
 // passport deserializeUser is going to take the id and look that upin the database
 passport.deserializeUser((id, cb) => {
-    cb(null, id)
-    .catch(cb());
+    // cb(null, user.id)
+    // .catch(cb);
+
+    db.user.findByPk(id)
+    .then(user => {
+        cb(null, user)
+    }).catch(cb);
 })
 
 
@@ -26,13 +31,16 @@ passport.use(new localStrategy({
 
     })
     .then(user => {
-        if (!user || user.validPassword(password)){
+        if (!user || !user.validPassword(password)){
             cb(null, false);
 
         } else {
             cb(null, user);
         }
     })
-    .catch(cb());
+    .catch(cb);
 }
-))
+));
+
+
+module.exports = passport;

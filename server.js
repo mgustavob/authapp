@@ -4,6 +4,8 @@ const layouts = require('express-ejs-layouts');
 const app = express();
 const session = require('express-session');
 const SECRET_SESSION = process.env.SECRET_SESSION;
+const passport = require('./config/ppConfig');
+const flash = require('connect-flash');
 
 app.set('view engine', 'ejs');
 
@@ -11,6 +13,8 @@ app.use(require('morgan')('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'));
 app.use(layouts);
+// flash for temporary messages to the user (error messages)
+app.use(flash());
 
 // secret: what we actually giving to user to use our site / session cookie
 // resave: Save the session even if it gets modified, make this false
@@ -21,6 +25,12 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }))
+
+
+// initialize passport and run session as middleware
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -40,7 +50,3 @@ const server = app.listen(port, () => {
 });
 
 module.exports = server;
-
-
-
-
