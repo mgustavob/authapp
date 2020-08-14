@@ -13,8 +13,8 @@ app.use(require('morgan')('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'));
 app.use(layouts);
-// flash for temporary messages to the user (error messages)
-app.use(flash());
+
+
 
 // secret: what we actually giving to user to use our site / session cookie
 // resave: Save the session even if it gets modified, make this false
@@ -32,8 +32,21 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// flash for temporary messages to the user (error messages)
+app.use(flash());
+
+// middleware to have our messages available for every view
+
+app.use((res, req, next) => {
+  // before ever route, we will attach our current user to res.local
+  res.local.alers = req.flash();
+  res.local.currentUser = req.user;
+  next();
+});
+
+
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('index'), { alert: req.flash() };
 });
 
 app.get('/profile', (req, res) => {
